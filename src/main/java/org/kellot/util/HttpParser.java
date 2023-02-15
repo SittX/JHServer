@@ -1,116 +1,98 @@
 package org.kellot.util;
 
 import org.kellot.request.HttpRequest;
+import org.kellot.request.UnsupportedHTTPMethodException;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 // This class contains methods and attributes that are related to an HttpRequest
 // It will only store information and methods that can process this information
 public class HttpParser {
+    private final List<String> HTTP_METHODS = List.of("GET","HEAD");
+    private InputStreamReader input;
+    private HttpRequest request;
+    private static final char SP = ' ';
+    private static final char CR = '\r';
+    private static final char LF = '\n';
+    private static final String QM = "\\?";
+    private BufferedReader reader;
 
-    // Parameter value -> GET /resource HTTP/1.1 (OR) GET /resource?value1=hello HTTP/1.1
-//    public static Map<String, String> parseRequestLine(String requestLine) throws IOException {
-//        Map<String, String> requestLineAttributes = new HashMap<>();
-//
-//        String[] requestHeaderParts = requestLine.split(" ");
-//        requestLineAttributes.put("method", requestHeaderParts[0]);
-//        requestLineAttributes.put("resource-path", requestHeaderParts[1]);
-//        requestLineAttributes.put("http-version",requestHeaderParts[2]);
-//
-//        String resourcePath = requestLineAttributes.get("resource-path");
-//        // Separate resource path from query string
-//        if (resourcePath.contains("?")) {
-//            requestLineAttributes.put("resource-path", resourcePath.split("\\?")[0]);
-//            requestLineAttributes.put("query-string", resourcePath.split("\\?")[1]);
-//        }
-//        return requestLineAttributes;
-//    }
+    public HttpParser(InputStreamReader input) {
+        this.input = input;
+        this.request = new HttpRequest();
+        this.reader  = new BufferedReader(input);
+    }
 
-    public static void parseRequestLine(String requestLine,HttpRequest request){
-        String[] requestLines  = requestLine.split("\n")[0].split(" ");
-        if(requestLines.length < 3){
-            // TODO create a new HTTP exception
-            throw new RuntimeException("Bad request");
+
+    public HttpRequest parse() throws IOException, UnsupportedHTTPMethodException {
+
+        String currentLine;
+        List<String> requestDetails = new ArrayList<>();
+        while(!(currentLine = reader.readLine()).equals("")){
+            requestDetails.add(currentLine);
         }
 
-        request.setMethod(requestLines[0]);
-        request.setHttpVersion(requestLines[2]);
+        if(requestDetails.size() <= 0){
+            // TODO Handle Bad Request here
+            throw new RuntimeException();
+        }
 
-        String path = requestLines[1];
+        String requestLine = requestDetails.get(0);
+        // Remove the RequestLine from the RequestDetails List
+        requestDetails.remove(0);
+
+        parseRequestLine(requestLine);
+        parseHeaders(requestDetails);
+        parseBody();
+
+        return request;
+    }
+
+    private void parseRequestLine(String requestLine) throws IOException, UnsupportedHTTPMethodException {
+        String[] requestLineParts = requestLine.split(" ");
+        String method = requestLineParts[0];
+        String path = requestLineParts[1];
+        String httpVersion = requestLineParts[2];
         String queryString = null;
-        // Separate resource path from query string
-        if (path.contains("?")) {
-            path = path.split("\\?")[0];
-            queryString = path.split("\\?")[1];
+
+        validateHttpMethod(method);
+
+        if(path.contains(QM)){
+            String[] paths = path.split(QM);
+            path = paths[0];
+            queryString = paths[1];
         }
 
         request.setPath(path);
+        request.setMethod(method);
+        request.setHttpVersion(httpVersion);
         request.setQueryString(queryString);
     }
 
-
-    public static void parseBody(){}
-    public static void parseHeaders(String header,HttpRequest request) throws IOException {
-        var headerMaps = new HashMap<String,String>();
-        String[] requestHeaders = header.split("\n");
-
-        for (String requestHeader : requestHeaders) {
-            if (requestHeader.contains(":")) {
-                String[] headerParts = requestHeader.split(":");
-                headerMaps.put(headerParts[0].trim(), headerParts[1].trim());
-            }
+    private void validateHttpMethod(String method) throws UnsupportedHTTPMethodException {
+        if(!HTTP_METHODS.contains(method)){
+            throw new UnsupportedHTTPMethodException("HTTP method is not supported.");
         }
-        request.setHeaders(headerMaps);
     }
 
-    public static String convertHeaderToCamelCase(String text){
-        if(!text.contains("-")){
-            return text.toLowerCase();
+    private void parseHeaders(List<String> requestHeaders){
+        Map<String,String> headers = new HashMap<>();
+        for (String header : requestHeaders) {
+            String[] headerParts = header.split(":");
+            String type = headerParts[0];
+            String value = headerParts[1];
+            headers.put(type,value);
         }
-
-        String[] words = text.split("-");
-        StringBuilder result = new StringBuilder();
-        result.append(words[0].toLowerCase());
-        for (int i = 1; i < words.length; i++) {
-            String word = words[i];
-            result.append(word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase());
-        }
-        return result.toString();
+        request.setHeaders(headers);
     }
 
+    public void parseBody(){}
 
-    public Map<String, String> parseBody(String requestBody,HttpRequest request) throws IOException {
-        String contentType = request.getHeaders().get("Content-Type");
-        Map<String, String> dataMap = new HashMap<>();
-        if (contentType.equals("application/x-www-form-urlencoded")) {
-            String[] keyValuePairs = requestBody.split("&");
-            for (String keyValuePair : keyValuePairs) {
-                String[] parts = keyValuePair.split("=");
-                dataMap.put(parts[0], parts[1]);
-            }
-        } else if (contentType.contains("multipart/form-data")) {
-            String BOUNDARY_PREFIX = "--";
-            String boundary = contentType.split("=")[1];
-            String bodyEnding = BOUNDARY_PREFIX + boundary + BOUNDARY_PREFIX;
-
-            String currentFieldName = "";
-            String currentLine;
-            while (!(currentLine = input.readLine()).equals(bodyEnding)) {
-                if (currentLine.equals(BOUNDARY_PREFIX + boundary) || currentLine.isEmpty()) {
-                    continue;
-                } else if (currentLine.contains("Content-Disposition")) {
-                    currentFieldName = currentLine.split("=")[1].replace("\"", "");
-                } else {
-                    if (currentLine.contains(BOUNDARY_PREFIX)) continue;
-                    String value = currentLine.trim();
-                    dataMap.put(currentFieldName, value);
-                }
-            }
-        }
-        dataMap.forEach((key, value) -> System.out.println(key + " : " + value));
-        return dataMap;
-    }
 
 }

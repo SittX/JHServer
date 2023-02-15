@@ -8,7 +8,7 @@ public class HttpRequest {
     private String path;
     private String httpVersion;
     private String queryString;
-    private Map<String,String> headers;
+    private Map<String, String> headers;
 
     public HttpRequest() {
         this.headers = new HashMap<>();
