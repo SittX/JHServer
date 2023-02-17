@@ -4,13 +4,9 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kellot.request.HttpRequest;
-import org.kellot.request.UnsupportedHTTPMethodException;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpParserTest {
 

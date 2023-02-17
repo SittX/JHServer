@@ -1,4 +1,5 @@
 {
   "port": 1234,
-  "root": "www"
+  "root": "src/main/resources/www",
+  "pages": "src/main/resources/www/pages"
 }

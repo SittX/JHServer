@@ -4,13 +4,12 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-public class ConnectionListener extends Thread {
+public class RequestListenerThread extends Thread {
     private ServerSocket serverSocket;
     private Socket clientSocket;
-
     private int port;
 
-    public ConnectionListener(int port) throws IOException {
+    public RequestListenerThread(int port) throws IOException {
         this.port = port;
         this.serverSocket = new ServerSocket(port);
     }
@@ -26,8 +25,8 @@ public class ConnectionListener extends Thread {
                 clientSocket = serverSocket.accept();
                 System.out.println("Client connection count : " + count);
                 System.out.println("*** New Connection from : " + clientSocket.getInetAddress());
-                // Process the request on another thread
-                RequestWorker workerThread = new RequestWorker(clientSocket);
+                // Spawn another thread to process the request
+                RequestWorkerThread workerThread = new RequestWorkerThread(clientSocket);
                 workerThread.start();
             }
 
