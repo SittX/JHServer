@@ -1,13 +1,13 @@
 package org.kellot;
 
 import org.junit.jupiter.api.Test;
-import org.kellot.config.Configuration;
 import org.kellot.config.ConfigurationManager;
+import org.kellot.response.HttpResponseStatus;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.time.ZoneId;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResourceManagerTest {
 
@@ -26,9 +26,33 @@ class ResourceManagerTest {
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-
         assertTrue(result);
+    }
+
+    @Test
+    void testEnum() {
+        HttpResponseStatus status = HttpResponseStatus.valueOf("OK");
+        if (status == HttpResponseStatus.OK) {
+            System.out.println("Value is OK.");
+        }
+
+        System.out.println("Status : " + HttpResponseStatus.OK.getCode());
+        System.out.println("Code : " + HttpResponseStatus.OK);
+
+        System.out.println("\n\n");
+        for (HttpResponseStatus s : HttpResponseStatus.values()) {
+            System.out.println("Status : " + s);
+            System.out.println("Code : " + s.getCode());
+        }
+    }
+
+    @Test
+    void testDate(){
+       for(String zone : ZoneId.getAvailableZoneIds()){
+           if(zone.contains("Rangoon")){
+               System.out.println(zone);
+           }
+       }
     }
 
     @Test
