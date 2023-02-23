@@ -17,15 +17,15 @@ public class HttpResponseBuilder {
         return new HttpResponse(this);
     }
 
-    protected HttpResponseStatus getStatus() {
+    HttpResponseStatus getStatus() {
         return status;
     }
 
-    protected int getCode() {
+    int getCode() {
         return code;
     }
 
-    protected String getBody() {
+    String getBody() {
         return body;
     }
 
@@ -34,7 +34,7 @@ public class HttpResponseBuilder {
         return this;
     }
 
-    protected Map<String, String> getHeaders() {
+    Map<String, String> getHeaders() {
         return headers;
     }
 

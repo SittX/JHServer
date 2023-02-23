@@ -1,0 +1,509 @@
+:root {
+    /* colors */
+    --dark-red: #74231ae3;
+    --brown: #f8dfc7;
+    --dark-orange: #ee9d6b;
+    --sage: #76e2d4;
+    --aqua: #268296;
+
+    /* fonts */
+    --main-font: Arial;
+    --header-font: impact;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--main-font);
+}
+
+body {
+    min-height: 100vh;
+    background-color: var(--dark-red);
+    color: white;
+}
+
+a {
+    color: unset;
+    text-decoration: none;
+}
+
+ul {
+    list-style-type: none;
+}
+
+li {
+    font-size: 20px;
+    padding: 5px;
+}
+
+/* static styles */
+.container {
+    padding: 1rem;
+}
+
+.section__padding {
+    padding: 1rem 1rem;
+}
+
+.element__padding {
+    padding: 0.5rem 0.5rem;
+}
+
+.section__margin {
+    margin: 1rem 1rem;
+}
+
+.element__margin {
+    margin: 0.5rem 0.5rem;
+}
+
+/* navigation menu and dropdown menu*/
+.nav {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    background-color: var(--aqua);
+}
+
+.nav__brand {
+    display: flex;
+    justify-content: center;
+    align-content: center;
+    text-decoration: none;
+    margin-right: 1rem;
+}
+
+.nav__text {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.nav__logo {
+    width: 35px;
+}
+
+.nav__menu-item {
+    display: inline;
+    color: white;
+    font-size: 18px;
+    font-weight: 200;
+}
+
+.nav__menu-dropdown-item {
+    display: block;
+    color: white;
+    font-size: 18px;
+    font-weight: 200;
+    padding: 0.5rem;
+}
+
+.nav__menu-dropdown {
+    display: none;
+    background-color: var(--aqua);
+    border-radius: 5px;
+    margin: 0px;
+}
+
+.nav__menu-item:first-child:hover .nav__menu-dropdown {
+    display: block;
+    position: absolute;
+    left: 0;
+}
+
+.bg-img {
+    width: 100%;
+    height: 40vh;
+    background-image: url("../resources/images/ballroom_logo_dark.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+/* footer */
+.footer {
+    position: sticky;
+    top: 100%;
+    text-align: center;
+    width: 100%;
+    background-color: var(--aqua);
+}
+
+.btn {
+    /* width: 180px; */
+    margin: auto;
+    padding: 15px 10px;
+    border: none;
+    color: white;
+    font-size: 1.5rem;
+    border-radius: 5px;
+    background-color: var(--dark-red);
+}
+
+.anchor-link {
+    text-decoration: underline;
+}
+
+.anchor-link:hover {
+    color: #007088;
+}
+
+/* index page */
+.section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+}
+
+.section__heading {
+    margin: 1rem;
+}
+
+.section--top {}
+
+.section--top p {
+    padding: 1rem;
+}
+
+.section--middle {
+    margin: 2rem 1rem;
+    flex-direction: row;
+    text-align: unset;
+}
+
+.section--middle div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.section--middle-text {
+    line-height: 1.5rem;
+}
+
+.section--middle img {
+    width: 280px;
+}
+
+.section--bottom {
+    margin: 20px 0;
+}
+
+.card__container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 2rem;
+}
+
+.card {
+    width: 300px;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 0 1rem;
+    background-color: var(--aqua);
+}
+
+.card__title {
+    font-size: 1.2rem;
+    margin: 10px 0;
+    font-weight: 800;
+}
+
+.section--bottom-text {
+    text-align: left;
+}
+
+/* events page */
+.event__container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.event {
+    background-color: var(--aqua);
+    width: 450px;
+    height: auto;
+    border: none;
+    margin: 15px;
+    border-radius: 5px;
+}
+
+.event * {
+    padding: 10px;
+}
+
+.event__img {
+    width: 200px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.event__title {
+    font-size: 20px;
+    font-family: var(--header-font);
+    font-weight: lighter;
+}
+
+.event__find-more {
+    padding: 20px 10px;
+}
+
+/* contact us page */
+
+.register-form {
+    width: 100%;
+    height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.register-form input {
+    font-size: 20px;
+    width: 400px;
+    margin: 1rem;
+    padding: 5px;
+    border-radius: 5px;
+    border: none;
+}
+
+.register-form__options {
+    width: 180px;
+    font-size: 18px;
+}
+
+#register-form__btn {
+    width: 100px;
+    font-size: 1rem;
+}
+
+.social-media__img {
+    width: 34px;
+    margin: 10px;
+}
+
+/* about us page */
+.class__text {
+    line-height: 1.5rem;
+}
+
+.class__location {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.class__info {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.class__info-email,
+.class__info-instagram,
+.class__info-twitter {
+    font-family: var(--header-font);
+    margin: 20px 0;
+}
+
+/* exam page */
+.exam__header-bg {
+    background-image: url("../resources/images/ballroom_tournament.jpg");
+    background-position: top;
+    background-size: cover;
+    background-repeat: no-repeat;
+    height: 40vh;
+}
+
+.exam__org {
+    font-size: 18px;
+    list-style-type: disc;
+}
+
+.exam__text {
+    line-height: 1.5rem;
+    padding: 10px 0;
+}
+
+.exam__site {
+    font-size: 15px;
+}
+
+/* Classes page */
+.course {
+    border: none;
+    border-radius: 5px;
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.course__content-list {
+    list-style-type: disc;
+    /* make the style elements to out go outside of the element */
+    list-style-position: inside;
+}
+
+.course__title {
+    font-size: 1.5rem;
+    margin: 10px 0;
+}
+
+.course__info {
+    line-height: 1.5rem;
+}
+
+.course__content-item {
+    font-size: 16px;
+}
+
+.course:nth-child(1) {
+    background-color: var(--aqua);
+}
+
+.course:nth-child(2) {
+    background-color: rgb(151, 151, 7);
+}
+
+.course:nth-child(3) {
+    background-color: rgb(49, 152, 49);
+}
+
+/* uniform page */
+.uniform__type {
+    font-size: 1.4rem;
+    margin: 1rem 0;
+}
+
+.uniform__description,
+.dress_code__text {
+    margin: 1rem 0;
+    line-height: 1.5rem;
+}
+
+.dress_code__img {
+    width: 60%;
+    border-radius: 5px;
+}
+
+.shoes__container {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    margin: 1.5rem 0;
+}
+
+.shoes__img {
+    width: 200px;
+    border-radius: 5px;
+}
+
+
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (max-width: 650px) {
+    .btn {
+        font-size: 18px;
+        padding: 10px 5px;
+    }
+
+    /* nav menu */
+    .nav__text {
+        display: none;
+    }
+
+    .nav__brand {
+        margin: 2px;
+    }
+
+    .nav__menu-dropdown-item,
+    .nav__menu-item {
+        font-size: 15px;
+        margin: 0;
+    }
+
+    /* index page */
+    .section--middle {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section--middle-text {
+        margin-bottom: 1rem;
+    }
+
+    .card {
+        margin: 1rem 0;
+    }
+
+    .card__container {
+        flex-direction: column;
+    }
+
+    /* contact page */
+    .register-form input {
+        width: 90%;
+    }
+
+    /* about page */
+    .class__location {
+        flex-direction: column;
+    }
+
+    .class__info-email,
+    .class__info-twitter,
+    .class__info-instagram {
+        margin: 5px 0;
+        font-size: 20px;
+        font-family: var(--main-font);
+    }
+
+    .class__info {
+        margin: 1rem 0;
+    }
+
+    .map {
+        width: 90%;
+        height: 400px;
+    }
+
+    /* event page */
+    .event__container {
+        flex-direction: column;
+    }
+
+    .event {
+        width: 90%;
+    }
+
+    .event__title {
+        font-family: var(--main-font);
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    /* uniform page */
+    .dress_code__img {
+        width: 95%;
+    }
+
+    .shoes__container {
+        flex-direction: column;
+    }
+
+    .referenced-site {
+        font-size: 1rem;
+    }
+}
+
+/* Medium devices */
+@media only screen and (max-width: 700px) {}

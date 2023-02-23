@@ -14,7 +14,6 @@ import java.nio.charset.StandardCharsets;
 /**
  * A worker thread that is initiated to parse the request data
  * and pass to the controller.
- *
  * @author SittX
  */
 public class RequestWorkerThread extends Thread {
@@ -36,7 +35,7 @@ public class RequestWorkerThread extends Thread {
             InputStreamReader input = new InputStreamReader(socket.getInputStream(), StandardCharsets.UTF_8);
             OutputStreamWriter output = new OutputStreamWriter(socket.getOutputStream(), StandardCharsets.UTF_8);
             HttpRequest request = new HttpParser(input).parse();
-            FrontController.getInstance().dispatchRequest(output, request);
+            FrontController.getInstance().dispatchResponse(output, request);
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedHTTPMethodException e) {

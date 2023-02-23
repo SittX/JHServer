@@ -1,6 +1,8 @@
 package org.kellot.dispatcher;
 
 import org.kellot.ResourceManager;
+import org.kellot.config.ServerConfiguration;
+import org.kellot.config.ServerConfigurationManager;
 import org.kellot.request.HttpRequest;
 import org.kellot.response.HttpResponse;
 import org.kellot.response.HttpResponseBuilder;
@@ -21,10 +23,12 @@ import java.util.Map;
 public class Dispatcher {
     private final OutputStreamWriter output;
     private final ResourceManager resourceManager;
+    private final ServerConfiguration conf;
 
     public Dispatcher(OutputStreamWriter output) {
         this.output = output;
         this.resourceManager = ResourceManager.getInstance();
+        this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
     }
 
     /**
@@ -33,26 +37,52 @@ public class Dispatcher {
      * @param request is the HttpRequest object.
      * @throws IOException when the path is not found in the "root" directory.
      */
-    public void dispatch(HttpRequest request) throws IOException {
+    public void dispatchResponse(HttpRequest request){
         String path = request.getPath();
-        boolean result = resourceManager.searchPage(path);
-        if (result) {
-                sendResponse(path);
+        byte[] htmlCode = resourceManager.readFileIntoByteArray(conf.getPageLocation() + path);
+        if (htmlCode.length == 0) {
+            HttpResponse response = new HttpResponseBuilder(HttpResponseStatus.OK, HttpResponseStatus.OK.getCode())
+                    .setBody(new String(htmlCode))
+                    .setHeaders(Map.ofEntries(
+                            Map.entry("Content-Type", "text/html"),
+                            Map.entry("Content-Length", String.valueOf(htmlCode.length)),
+                            Map.entry("Date", getHttpDate()),
+                            Map.entry("Expires", getExpiryDate(1))
+                    ))
+                    .build();
+            sendResponse(response);
         } else {
-            sendResponse("/ErrorPage.html");
+            dispatchError(HttpResponseStatus.NOT_FOUND);
         }
     }
 
     /**
-     * Construct HttpResponse object and sent it back to the OutputStream.
-     * @param path is the file path of the response data
-     * @throws IOException when resourceManager.getPage() cannot find the path
+     * Receive HttpResponse object and sent it back along with requested page to the OutputStream.
+     * @param response is HttpResponse object
      */
-    private void sendResponse(String path) throws IOException {
-        byte[] htmlCode = resourceManager.getPage(path);
+    private void sendResponse(HttpResponse response) {
+        try {
+            output.write(response.toString());
+            output.flush();
+        } catch (IOException e) {
+            throw new RuntimeException("Error writing data into the OutputStream. " + e.getMessage());
+        }
 
-        // Construct response object
-        HttpResponse response = new HttpResponseBuilder(HttpResponseStatus.OK, HttpResponseStatus.OK.getCode())
+        try {
+            output.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error when closing the OutputStream. " + e.getMessage());
+        }
+    }
+
+    /**
+     * Dispatch error page to the client
+     * @param responseStatus is the status of the HttpResponse
+     */
+    public void dispatchError(HttpResponseStatus responseStatus) {
+        byte[] htmlCode = resourceManager.readFileIntoByteArray(conf.getErrorTemplateLocation());
+
+        HttpResponse response = new HttpResponseBuilder(responseStatus, responseStatus.getCode())
                 .setBody(new String(htmlCode))
                 .setHeaders(Map.ofEntries(
                         Map.entry("Content-Type", "text/html"),
@@ -61,10 +91,7 @@ public class Dispatcher {
                         Map.entry("Expires", getExpiryDate(1))
                 ))
                 .build();
-
-        output.write(response.toString());
-        output.flush();
-        output.close();
+        sendResponse(response);
     }
 
     /**
@@ -75,7 +102,7 @@ public class Dispatcher {
     private String getHttpDate() {
         DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC);
-       return httpDateFormat.format(currentDateTime);
+        return httpDateFormat.format(currentDateTime);
     }
 
     /**
@@ -83,10 +110,9 @@ public class Dispatcher {
      * @param expiryHour
      * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
      */
-    private String getExpiryDate(long expiryHour){
+    private String getExpiryDate(long expiryHour) {
         DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).plusHours(expiryHour);
         return httpDateFormat.format(currentDateTime);
     }
-
 }

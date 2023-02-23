@@ -47,7 +47,6 @@ public class RequestListenerThread extends Thread {
                 RequestWorkerThread workerThread = new RequestWorkerThread(clientSocket);
                 workerThread.start();
             }
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

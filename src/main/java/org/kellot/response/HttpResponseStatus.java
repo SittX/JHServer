@@ -6,7 +6,7 @@ public enum HttpResponseStatus {
     NOT_FOUND(404),
     URI_TOO_LARGE(414),
     UNSUPPORTED_MEDIA_TYPE(415),
-   METHOD_NOT_ALLOWED(405),
+    METHOD_NOT_ALLOWED(405),
     NOT_IMPLEMENTED(501);
 
     private int statusCode;

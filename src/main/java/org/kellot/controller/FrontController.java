@@ -1,10 +1,13 @@
 package org.kellot.controller;
 
+import org.kellot.config.ServerConfiguration;
+import org.kellot.config.ServerConfigurationManager;
 import org.kellot.dispatcher.Dispatcher;
 import org.kellot.exception.UnsupportedHTTPMethodException;
+import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
+import org.kellot.response.HttpResponseStatus;
 
-import java.io.IOException;
 import java.io.OutputStreamWriter;
 
 // TODO This class is responsible for redirecting the request to its related dispatcher
@@ -18,8 +21,9 @@ import java.io.OutputStreamWriter;
  */
 public class FrontController {
     private static FrontController requestController;
-
+    private final ServerConfiguration conf;
     private FrontController() {
+       this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
     }
 
     public static FrontController getInstance() {
@@ -29,30 +33,37 @@ public class FrontController {
         return requestController;
     }
 
-    public void dispatchRequest(OutputStreamWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
+    public void dispatchResponse(OutputStreamWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
         Dispatcher dispatcher = new Dispatcher(outputStream);
 
-        // TODO Check Request Method
-        // TODO Check Request URL
-        if (valiateHttpMethod(request)) {
-            throw new UnsupportedHTTPMethodException("HTTP request method is not supported");
-        } else if (validateRequestURL(request)) {
-            throw new RuntimeException("Request URL is too long");
+        if (!validateHttpMethod(request)) {
+            dispatcher.dispatchError(HttpResponseStatus.METHOD_NOT_ALLOWED);
+        } else if (!validateQueryStringLength(request)) {
+            dispatcher.dispatchError(HttpResponseStatus.BAD_REQUEST);
         } else {
-            try {
-                dispatcher.dispatch(request);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+                dispatcher.dispatchResponse(request);
+        }
+    }
+
+    private boolean validateQueryStringLength(HttpRequest request) {
+        if(request.getQueryString() != null){
+            return request.getQueryString().length() <= conf.getQueryStringLength();
+        }
+        return true;
+    }
+
+    /**
+     * Validate Http method of the request.
+     * @param request
+     * @return TRUE if the method is valid and FALSE if it is invalid.
+     */
+    private boolean validateHttpMethod(HttpRequest request) {
+        String requestMethod = request.getMethod();
+        for(HttpMethod method : HttpMethod.values()) {
+            if(HttpMethod.valueOf(requestMethod) == method){
+                return true;
             }
         }
-
-    }
-
-    private boolean validateRequestURL(HttpRequest request) {
-        return false;
-    }
-
-    private boolean valiateHttpMethod(HttpRequest request) {
         return false;
     }
 
