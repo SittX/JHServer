@@ -8,25 +8,31 @@ import java.io.FileReader;
 /*
     ConfigurationManager is a singleton class for loading, and managing configuration information for the HTTP server.
  */
-public class ServerConfigurationManager {
-    private static ServerConfigurationManager configurationManager;
+// TODO ServerConfigurationManager should use Factory pattern
+public class ServerConfigurationManagerImpl {
+    private static ServerConfigurationManagerImpl configurationManager;
     private ServerConfiguration configuration;
 
-    private ServerConfigurationManager() {
+    private ServerConfigurationManagerImpl() {
     }
 
-    public static ServerConfigurationManager getInstance() {
+    public static ServerConfigurationManagerImpl getInstance() {
         if (configurationManager == null) {
-            configurationManager = new ServerConfigurationManager();
+            configurationManager = new ServerConfigurationManagerImpl();
         }
         return configurationManager;
     }
+
+//    public ServerConfiguration getConfiguration(String configurationFilePath){
+//       ServerConfigurationManager serverConfigurationManager = ServerConfigurationManager.getInstance();
+//       serverConfigurationManager.initializeConfiguration(configurationFilePath);
+//    }
 
     public void initializeConfiguration(String filePath) {
         try {
             configuration = JsonParser.toObject(new FileReader(filePath), ServerConfiguration.class);
         } catch (FileNotFoundException e) {
-            System.out.println("Error : Configuration file cannot be found. " + e);
+            throw new RuntimeException("Error : Server configuration file cannot be found -> " + e);
         }
     }
 

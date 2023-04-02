@@ -1,10 +1,9 @@
 package org.kellot;
 
 import org.junit.jupiter.api.Test;
-import org.kellot.config.ServerConfigurationManager;
+import org.kellot.config.ServerConfigurationManagerImpl;
 import org.kellot.response.HttpResponseStatus;
 
-import java.io.FileNotFoundException;
 import java.time.ZoneId;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -13,14 +12,14 @@ class ResourceManagerTest {
 
     @Test
     void searchPage() {
-        ServerConfigurationManager.getInstance().initializeConfiguration("src/main/resources/JHConfig.json");
+        ServerConfigurationManagerImpl.getInstance().initializeConfiguration("src/main/resources/JHConfig.json");
         ResourceManager resourceManager = ResourceManager.getInstance();
 
-            byte[] fileContent = resourceManager.readFileIntoByteArray("hello.html");
+            ResourceData resourceData = resourceManager.getResourceData("hello.html");
+            byte[] fileContent = resourceData.getData();
             for (byte b : fileContent) {
                 System.out.println(b);
             }
-
     }
 
     @Test

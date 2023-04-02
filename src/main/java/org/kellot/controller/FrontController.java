@@ -1,8 +1,8 @@
 package org.kellot.controller;
 
 import org.kellot.config.ServerConfiguration;
-import org.kellot.config.ServerConfigurationManager;
-import org.kellot.dispatcher.Dispatcher;
+import org.kellot.config.ServerConfigurationManagerImpl;
+import org.kellot.dispatcher.RequestDispatcher;
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
@@ -16,14 +16,13 @@ import java.io.OutputStreamWriter;
 /**
  * A singleton controller class responsible for redirecting the requests to their related dispatcher
  * based on their resource path and method.
- *
  * @author SittX
  */
 public class FrontController {
     private static FrontController requestController;
     private final ServerConfiguration conf;
     private FrontController() {
-       this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
+       this.conf = ServerConfigurationManagerImpl.getInstance().getCurrentConfiguration();
     }
 
     public static FrontController getInstance() {
@@ -34,7 +33,7 @@ public class FrontController {
     }
 
     public void dispatchResponse(OutputStreamWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
-        Dispatcher dispatcher = new Dispatcher(outputStream);
+        RequestDispatcher dispatcher = new RequestDispatcher(outputStream);
 
         if (!validateHttpMethod(request)) {
             dispatcher.dispatchError(HttpResponseStatus.METHOD_NOT_ALLOWED);

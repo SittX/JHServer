@@ -1,18 +1,17 @@
 package org.kellot.dispatcher;
 
+import org.kellot.ResourceData;
 import org.kellot.ResourceManager;
 import org.kellot.config.ServerConfiguration;
-import org.kellot.config.ServerConfigurationManager;
+import org.kellot.config.ServerConfigurationManagerImpl;
 import org.kellot.request.HttpRequest;
 import org.kellot.response.HttpResponse;
 import org.kellot.response.HttpResponseBuilder;
 import org.kellot.response.HttpResponseStatus;
+import org.kellot.util.HttpDate;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 /**
@@ -20,15 +19,15 @@ import java.util.Map;
  * send back error page when the request is not valid.
  * @author SittX
  */
-public class Dispatcher {
+public class RequestDispatcher {
     private final OutputStreamWriter output;
     private final ResourceManager resourceManager;
     private final ServerConfiguration conf;
 
-    public Dispatcher(OutputStreamWriter output) {
+    public RequestDispatcher(OutputStreamWriter output) {
         this.output = output;
         this.resourceManager = ResourceManager.getInstance();
-        this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
+        this.conf = ServerConfigurationManagerImpl.getInstance().getCurrentConfiguration();
     }
 
     /**
@@ -39,15 +38,16 @@ public class Dispatcher {
      */
     public void dispatchResponse(HttpRequest request){
         String path = request.getPath();
-        byte[] htmlCode = resourceManager.readFileIntoByteArray(conf.getPageLocation() + path);
-        if (htmlCode.length == 0) {
+        ResourceData resourceData = resourceManager.getResourceData(conf.getPageLocation()+ path);
+        if (resourceData.isValid()) {
+            byte[] htmlCode = resourceData.getData();
             HttpResponse response = new HttpResponseBuilder(HttpResponseStatus.OK, HttpResponseStatus.OK.getCode())
                     .setBody(new String(htmlCode))
                     .setHeaders(Map.ofEntries(
                             Map.entry("Content-Type", "text/html"),
                             Map.entry("Content-Length", String.valueOf(htmlCode.length)),
-                            Map.entry("Date", getHttpDate()),
-                            Map.entry("Expires", getExpiryDate(1))
+                            Map.entry("Date", HttpDate.getCurrentHttpDate()),
+                            Map.entry("Expires", HttpDate.getExpiryDate(1))
                     ))
                     .build();
             sendResponse(response);
@@ -80,39 +80,23 @@ public class Dispatcher {
      * @param responseStatus is the status of the HttpResponse
      */
     public void dispatchError(HttpResponseStatus responseStatus) {
-        byte[] htmlCode = resourceManager.readFileIntoByteArray(conf.getErrorTemplateLocation());
+        ResourceData resourceData = resourceManager.getResourceData(conf.getErrorTemplateLocation());
 
+        if(!resourceData.isValid()){
+            throw new RuntimeException("Resource data cannot be found. Please check the location of the resources.");
+        }
+
+        byte[] htmlCode = resourceData.getData();
         HttpResponse response = new HttpResponseBuilder(responseStatus, responseStatus.getCode())
                 .setBody(new String(htmlCode))
                 .setHeaders(Map.ofEntries(
                         Map.entry("Content-Type", "text/html"),
                         Map.entry("Content-Length", String.valueOf(htmlCode.length)),
-                        Map.entry("Date", getHttpDate()),
-                        Map.entry("Expires", getExpiryDate(1))
+                        Map.entry("Date", HttpDate.getCurrentHttpDate()),
+                        Map.entry("Expires", HttpDate.getExpiryDate(1))
                 ))
                 .build();
         sendResponse(response);
     }
 
-    /**
-     * Get the current date and time in the UTC timezone and format it in the HTTP "Date" header format.
-     * Format -> Fri, 31 Dec 1999 23:59:59 GMT
-     * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
-     */
-    private String getHttpDate() {
-        DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
-        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC);
-        return httpDateFormat.format(currentDateTime);
-    }
-
-    /**
-     * Same as getHttpDate() method but it adds some additional hours for expiry date.
-     * @param expiryHour
-     * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
-     */
-    private String getExpiryDate(long expiryHour) {
-        DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
-        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).plusHours(expiryHour);
-        return httpDateFormat.format(currentDateTime);
-    }
 }

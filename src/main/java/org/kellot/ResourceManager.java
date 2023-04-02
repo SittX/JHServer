@@ -1,7 +1,7 @@
 package org.kellot;
 
 import org.kellot.config.ServerConfiguration;
-import org.kellot.config.ServerConfigurationManager;
+import org.kellot.config.ServerConfigurationManagerImpl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -11,7 +11,7 @@ public class ResourceManager {
     private ServerConfiguration configuration;
 
     private ResourceManager() {
-        configuration = ServerConfigurationManager.getInstance().getCurrentConfiguration();
+        configuration = ServerConfigurationManagerImpl.getInstance().getCurrentConfiguration();
     }
 
     public static ResourceManager getInstance() {
@@ -21,23 +21,18 @@ public class ResourceManager {
         return resourceManager;
     }
 
-    // TODO Completely removed searchPage methods and try to check in the dispatcher
-    public boolean searchPage(String fileName) {
-        File file = new File(configuration.getPageLocation() + fileName);
-        return file.exists();
-    }
-
-
     // TODO when data is sent back to client, it should be sent through Compressing stream for better efficiency
-    public byte[] readFileIntoByteArray(String fileName) {
-        File file = new File(fileName);
-        byte[] fileBuffer = new byte[(int) file.length()];
+    public ResourceData getResourceData(String resourcePath) {
+        File file = new File(resourcePath);
 
+        ResourceData data = new ResourceData();
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            fileInputStream.read(fileBuffer);
+           data.setData(fileInputStream.readAllBytes());
         } catch (Exception e) {
+            // Do not handle the exception. Log it.
             e.printStackTrace();
         }
-        return fileBuffer;
+
+        return data;
     }
 }
