@@ -54,4 +54,15 @@ public class HttpRequest {
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
     }
+
+    @Override
+    public String toString() {
+        return "HttpRequest{" +
+                "method='" + method + '\'' +
+                ", path='" + path + '\'' +
+                ", httpVersion='" + httpVersion + '\'' +
+                ", queryString='" + queryString + '\'' +
+                ", headers=" + headers +
+                '}';
+    }
 }

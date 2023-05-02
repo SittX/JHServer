@@ -1,7 +1,7 @@
 {
   "port": 1234,
   "rootLocation": "src/main/resources/www",
-  "pageLocation": "src/main/resources/www/pages",
+  "pageLocation": "src/main/resources/www",
   "errorTemplateLocation": "src/main/resources/www/templates/error.html",
   "queryStringLength": 1024
 }

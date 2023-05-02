@@ -1,15 +1,18 @@
 package org.kellot.dispatcher;
 
-import org.kellot.ResourceData;
-import org.kellot.ResourceManager;
+import org.kellot.MIME_TYPE;
+import org.kellot.resource.ResourceData;
+import org.kellot.resource.ResourceManager;
 import org.kellot.config.ServerConfiguration;
-import org.kellot.config.ServerConfigurationManagerImpl;
+import org.kellot.config.ServerConfigurationManager;
 import org.kellot.request.HttpRequest;
 import org.kellot.response.HttpResponse;
 import org.kellot.response.HttpResponseBuilder;
 import org.kellot.response.HttpResponseStatus;
 import org.kellot.util.HttpDate;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Map;
@@ -17,34 +20,47 @@ import java.util.Map;
 /**
  * Dispatch HTTP response back to the client with requested data or
  * send back error page when the request is not valid.
+ *
  * @author SittX
  */
 public class RequestDispatcher {
-    private final OutputStreamWriter output;
+    private final BufferedWriter output;
     private final ResourceManager resourceManager;
     private final ServerConfiguration conf;
 
-    public RequestDispatcher(OutputStreamWriter output) {
+    public RequestDispatcher(BufferedWriter output) {
         this.output = output;
         this.resourceManager = ResourceManager.getInstance();
-        this.conf = ServerConfigurationManagerImpl.getInstance().getCurrentConfiguration();
+        this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
     }
 
     /**
      * Dispatch response to the client with the targeted path in the request.
      * It'll find the requested path in the "root" directory and return data if it exists in the "root" directory.
+     *
      * @param request is the HttpRequest object.
      * @throws IOException when the path is not found in the "root" directory.
      */
-    public void dispatchResponse(HttpRequest request){
+    public void dispatchResponse(HttpRequest request) {
         String path = request.getPath();
-        ResourceData resourceData = resourceManager.getResourceData(conf.getPageLocation()+ path);
+        ResourceData resourceData = resourceManager.getResourceData(conf.pageLocation() + path);
+        System.out.println(request.toString());
         if (resourceData.isValid()) {
+            String fileExtension = path.substring(path.lastIndexOf('.' ) + 1).toUpperCase();
+            String contentType = "";
+            for (MIME_TYPE type:MIME_TYPE.values()) {
+                if(MIME_TYPE.valueOf(fileExtension) == type ) {
+                   contentType = MIME_TYPE.valueOf(fileExtension).getContentTypeString();
+                   break;
+                }
+            }
+
             byte[] htmlCode = resourceData.getData();
             HttpResponse response = new HttpResponseBuilder(HttpResponseStatus.OK, HttpResponseStatus.OK.getCode())
                     .setBody(new String(htmlCode))
                     .setHeaders(Map.ofEntries(
-                            Map.entry("Content-Type", "text/html"),
+                            Map.entry("Connection","keep-alive"),
+                            Map.entry("Content-Type", contentType),
                             Map.entry("Content-Length", String.valueOf(htmlCode.length)),
                             Map.entry("Date", HttpDate.getCurrentHttpDate()),
                             Map.entry("Expires", HttpDate.getExpiryDate(1))
@@ -58,14 +74,16 @@ public class RequestDispatcher {
 
     /**
      * Receive HttpResponse object and sent it back along with requested page to the OutputStream.
+     *
      * @param response is HttpResponse object
      */
     private void sendResponse(HttpResponse response) {
         try {
+            System.out.println(response);
             output.write(response.toString());
             output.flush();
         } catch (IOException e) {
-            throw new RuntimeException("Error writing data into the OutputStream. " + e.getMessage());
+            throw new RuntimeException("Error writing data into the OutputStream. " + e.toString());
         }
 
         try {
@@ -77,12 +95,13 @@ public class RequestDispatcher {
 
     /**
      * Dispatch error page to the client
+     *
      * @param responseStatus is the status of the HttpResponse
      */
     public void dispatchError(HttpResponseStatus responseStatus) {
-        ResourceData resourceData = resourceManager.getResourceData(conf.getErrorTemplateLocation());
+        ResourceData resourceData = resourceManager.getResourceData(conf.errorTemplateLocation());
 
-        if(!resourceData.isValid()){
+        if (!resourceData.isValid()) {
             throw new RuntimeException("Resource data cannot be found. Please check the location of the resources.");
         }
 
@@ -90,10 +109,11 @@ public class RequestDispatcher {
         HttpResponse response = new HttpResponseBuilder(responseStatus, responseStatus.getCode())
                 .setBody(new String(htmlCode))
                 .setHeaders(Map.ofEntries(
-                        Map.entry("Content-Type", "text/html"),
                         Map.entry("Content-Length", String.valueOf(htmlCode.length)),
                         Map.entry("Date", HttpDate.getCurrentHttpDate()),
-                        Map.entry("Expires", HttpDate.getExpiryDate(1))
+                        Map.entry("Expires", HttpDate.getExpiryDate(1)),
+                        Map.entry("Connection", "keep-alive"),
+                        Map.entry("Server", "KST HTTP server/v1")
                 ))
                 .build();
         sendResponse(response);

@@ -1,13 +1,14 @@
 package org.kellot.controller;
 
 import org.kellot.config.ServerConfiguration;
-import org.kellot.config.ServerConfigurationManagerImpl;
+import org.kellot.config.ServerConfigurationManager;
 import org.kellot.dispatcher.RequestDispatcher;
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
 import org.kellot.response.HttpResponseStatus;
 
+import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 
 // TODO This class is responsible for redirecting the request to its related dispatcher
@@ -16,13 +17,15 @@ import java.io.OutputStreamWriter;
 /**
  * A singleton controller class responsible for redirecting the requests to their related dispatcher
  * based on their resource path and method.
+ *
  * @author SittX
  */
 public class FrontController {
     private static FrontController requestController;
     private final ServerConfiguration conf;
+
     private FrontController() {
-       this.conf = ServerConfigurationManagerImpl.getInstance().getCurrentConfiguration();
+        this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
     }
 
     public static FrontController getInstance() {
@@ -32,7 +35,7 @@ public class FrontController {
         return requestController;
     }
 
-    public void dispatchResponse(OutputStreamWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
+    public void dispatchResponse(BufferedWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
         RequestDispatcher dispatcher = new RequestDispatcher(outputStream);
 
         if (!validateHttpMethod(request)) {
@@ -40,26 +43,27 @@ public class FrontController {
         } else if (!validateQueryStringLength(request)) {
             dispatcher.dispatchError(HttpResponseStatus.BAD_REQUEST);
         } else {
-                dispatcher.dispatchResponse(request);
+            dispatcher.dispatchResponse(request);
         }
     }
 
     private boolean validateQueryStringLength(HttpRequest request) {
-        if(request.getQueryString() != null){
-            return request.getQueryString().length() <= conf.getQueryStringLength();
+        if (request.getQueryString() != null) {
+            return request.getQueryString().length() <= conf.queryStringLength();
         }
         return true;
     }
 
     /**
      * Validate Http method of the request.
+     *
      * @param request
      * @return TRUE if the method is valid and FALSE if it is invalid.
      */
     private boolean validateHttpMethod(HttpRequest request) {
         String requestMethod = request.getMethod();
-        for(HttpMethod method : HttpMethod.values()) {
-            if(HttpMethod.valueOf(requestMethod) == method){
+        for (HttpMethod method : HttpMethod.values()) {
+            if (HttpMethod.valueOf(requestMethod) == method) {
                 return true;
             }
         }

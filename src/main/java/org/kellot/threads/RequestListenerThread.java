@@ -3,7 +3,6 @@ package org.kellot.threads;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -37,19 +36,16 @@ public class RequestListenerThread extends Thread {
     @Override
     public void run() {
         try {
-//            int connectionCounter = 0;
+            logger.info("Server is listening on port -> " + port);
             while (!serverSocket.isClosed()) {
-                connectionCounter++;
                 // Listen to incoming TCP connection
-                logger.info("Server is listening on port -> " + port);
                 clientSocket = serverSocket.accept();
-                logger.info("Total connection count -> " + connectionCounter);
-                logger.info("*** A new connection is established from -> " + clientSocket.getInetAddress());
-//                logger.info("Keep-Alive : "+ clientSocket.getKeepAlive());
-//                clientSocket.setKeepAlive(true);
 
-               // Start RequestWorkerThread to process the incoming request
-                RequestWorkerThread workerThread = new RequestWorkerThread(clientSocket);
+                logger.info("Total connection count -> " + ++connectionCounter);
+                logger.info("*** A new connection is established from -> " + clientSocket.getInetAddress());
+
+                // Start RequestWorkerThread to process the incoming request
+                RequestProcessingThread workerThread = new RequestProcessingThread(clientSocket);
                 workerThread.start();
             }
         } catch (IOException e) {

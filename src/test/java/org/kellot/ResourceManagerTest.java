@@ -1,25 +1,25 @@
 package org.kellot;
 
 import org.junit.jupiter.api.Test;
-import org.kellot.config.ServerConfigurationManagerImpl;
+import org.kellot.config.ServerConfigurationManager;
+import org.kellot.resource.ResourceData;
+import org.kellot.resource.ResourceManager;
 import org.kellot.response.HttpResponseStatus;
 
 import java.time.ZoneId;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ResourceManagerTest {
 
     @Test
     void searchPage() {
-        ServerConfigurationManagerImpl.getInstance().initializeConfiguration("src/main/resources/JHConfig.json");
+        ServerConfigurationManager.getInstance().initializeConfiguration("src/main/resources/JHConfig.json");
         ResourceManager resourceManager = ResourceManager.getInstance();
 
-            ResourceData resourceData = resourceManager.getResourceData("hello.html");
-            byte[] fileContent = resourceData.getData();
-            for (byte b : fileContent) {
-                System.out.println(b);
-            }
+        ResourceData resourceData = resourceManager.getResourceData("hello.html");
+        byte[] fileContent = resourceData.getData();
+        for (byte b : fileContent) {
+            System.out.println(b);
+        }
     }
 
     @Test

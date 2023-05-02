@@ -8,6 +8,7 @@ public class HttpDate {
     /**
      * Get the current date and time in the UTC timezone and format it in the HTTP "Date" header format.
      * Format -> Fri, 31 Dec 1999 23:59:59 GMT
+     *
      * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
      */
     public static String getCurrentHttpDate() {
@@ -18,6 +19,7 @@ public class HttpDate {
 
     /**
      * Same as getHttpDate() method but it adds some additional hours for expiry date.
+     *
      * @param durationHour
      * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
      */

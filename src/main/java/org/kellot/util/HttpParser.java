@@ -5,7 +5,6 @@ import org.kellot.request.HttpRequest;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,12 +21,10 @@ public class HttpParser {
     private static final char LF = '\n'; // Line feed
     private static final String QM = "\\?"; // question mark
     private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
-    private InputStreamReader input;
-    private BufferedReader reader;
+    private BufferedReader input;
 
-    public HttpParser(InputStreamReader input) {
+    public HttpParser(BufferedReader input) {
         this.input = input;
-        this.reader = new BufferedReader(input);
     }
 
     /**
@@ -43,7 +40,7 @@ public class HttpParser {
         HttpRequest request = new HttpRequest();
         List<String> requestDetails = new ArrayList<>();
         String currentLine;
-        while (!(currentLine = reader.readLine()).equals("")) {
+        while (!(currentLine = input.readLine()).equals("")) {
             requestDetails.add(currentLine);
         }
 
@@ -164,7 +161,7 @@ public class HttpParser {
 
             String currentFieldName = "";
             String current;
-            while (!(current = reader.readLine()).equals(bodyEnding)) {
+            while (!(current = input.readLine()).equals(bodyEnding)) {
                 if (current.equals(BOUNDARY_PREFIX + boundary) || current.isEmpty()) {
                     continue;
                 } else if (current.contains("Content-Disposition")) {
