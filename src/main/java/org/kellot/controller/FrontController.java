@@ -8,6 +8,7 @@ import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
 import org.kellot.response.HttpResponseStatus;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
 
@@ -35,7 +36,7 @@ public class FrontController {
         return requestController;
     }
 
-    public void dispatchResponse(BufferedWriter outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
+    public void dispatchResponse(BufferedOutputStream outputStream, HttpRequest request) throws UnsupportedHTTPMethodException {
         RequestDispatcher dispatcher = new RequestDispatcher(outputStream);
 
         if (!validateHttpMethod(request)) {

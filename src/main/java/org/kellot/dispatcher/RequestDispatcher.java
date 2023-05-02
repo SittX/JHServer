@@ -11,10 +11,7 @@ import org.kellot.response.HttpResponseBuilder;
 import org.kellot.response.HttpResponseStatus;
 import org.kellot.util.HttpDate;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.Map;
 
 /**
@@ -24,11 +21,11 @@ import java.util.Map;
  * @author SittX
  */
 public class RequestDispatcher {
-    private final BufferedWriter output;
+    private final BufferedOutputStream output;
     private final ResourceManager resourceManager;
     private final ServerConfiguration conf;
 
-    public RequestDispatcher(BufferedWriter output) {
+    public RequestDispatcher(BufferedOutputStream output) {
         this.output = output;
         this.resourceManager = ResourceManager.getInstance();
         this.conf = ServerConfigurationManager.getInstance().getCurrentConfiguration();
@@ -43,8 +40,10 @@ public class RequestDispatcher {
      */
     public void dispatchResponse(HttpRequest request) {
         String path = request.getPath();
-        ResourceData resourceData = resourceManager.getResourceData(conf.pageLocation() + path);
-        System.out.println(request.toString());
+//        ResourceData resourceData = resourceManager.getResourceData(conf.pageLocation() + path);
+        ResourceData resourceData = resourceManager.getResourceData(request,output);
+
+//        System.out.println(request.getMethod() +" : "+path);
         if (resourceData.isValid()) {
             String fileExtension = path.substring(path.lastIndexOf('.' ) + 1).toUpperCase();
             String contentType = "";
@@ -79,9 +78,9 @@ public class RequestDispatcher {
      */
     private void sendResponse(HttpResponse response) {
         try {
-            System.out.println(response);
-            output.write(response.toString());
-            output.flush();
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(output));
+            writer.write(response.toString());
+            writer.flush();
         } catch (IOException e) {
             throw new RuntimeException("Error writing data into the OutputStream. " + e.toString());
         }

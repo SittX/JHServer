@@ -2,7 +2,7 @@ package org.kellot;
 
 public enum MIME_TYPE {
     CSS("text/css"),
-    JS("text/js"),
+    JS("text/javascript"),
     HTML("text/html"),
     JPG("image/jpg"),
     PNG("image/png"),

@@ -2,12 +2,17 @@ package org.kellot.resource;
 
 import org.kellot.config.ServerConfiguration;
 import org.kellot.config.ServerConfigurationManager;
+import org.kellot.request.HttpRequest;
 
+import javax.imageio.ImageIO;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.RenderedImage;
+import java.io.*;
+import java.util.Objects;
 
 public class ResourceManager {
     private static ResourceManager resourceManager;
@@ -40,6 +45,41 @@ public class ResourceManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        return data;
+    }
+
+    public ResourceData getResourceData(HttpRequest request,BufferedOutputStream output) {
+        System.out.println(request.getPath()+" : "+ request.getHeaders().get("Accept"));
+        ResourceData data = new ResourceData();
+
+        String requestPath = request.getPath();
+        String accept = request.getHeaders().get("Accept");
+        String requestAcceptType = accept.split("/")[0];
+        String fileExtension = requestPath.substring(requestPath.lastIndexOf('.') + 1);
+        File file = new File(configuration.pageLocation() + requestPath);
+
+        if(Objects.equals(requestAcceptType, "image") || fileExtension.equals("jpg") || fileExtension.equals("png")){
+            try {
+                ImageIcon imageIcon = new ImageIcon(file.getAbsolutePath());
+                Image image = imageIcon.getImage();
+                BufferedImage bufferedImage = new BufferedImage(image.getWidth(null),image.getHeight(null),BufferedImage.TYPE_INT_RGB);
+                Graphics graphics = bufferedImage.getGraphics();
+                graphics.drawImage(image,0,0,null);
+                graphics.dispose();
+
+                ImageIO.write(bufferedImage,fileExtension,output);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }else{
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+                data.setData(fileInputStream.readAllBytes());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
         return data;
     }
 }

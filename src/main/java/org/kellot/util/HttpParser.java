@@ -3,8 +3,10 @@ package org.kellot.util;
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpRequest;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +25,8 @@ public class HttpParser {
     private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
     private BufferedReader input;
 
-    public HttpParser(BufferedReader input) {
-        this.input = input;
+    public HttpParser(BufferedInputStream input) {
+        this.input = new BufferedReader(new InputStreamReader(input));
     }
 
     /**
