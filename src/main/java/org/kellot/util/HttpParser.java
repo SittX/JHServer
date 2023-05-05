@@ -1,16 +1,14 @@
 package org.kellot.util;
 
 import org.kellot.exception.UnsupportedHTTPMethodException;
+import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Utility class for parsing incoming HTTP requests
@@ -18,15 +16,19 @@ import java.util.Map;
  * @author SittX
  */
 public class HttpParser {
-    private static final char SP = ' ';
-    private static final char CR = '\r'; // Carriage return
-    private static final char LF = '\n'; // Line feed
-    private static final String QM = "\\?"; // question mark
-    private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
-    private BufferedReader input;
+    private static final String SPACE = " ";
+    private static final String CR = "\r"; // Carriage return
+    private static final String LF = "\n"; // Line feed
+    private static final String QUESTION_MARK = "\\?"; // question mark
+    //    private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
+    private final BufferedReader input;
 
-    public HttpParser(BufferedInputStream input) {
+    public HttpParser(InputStream input) {
         this.input = new BufferedReader(new InputStreamReader(input));
+    }
+
+    public static String getFileExtension(String path) {
+        return path.substring(path.lastIndexOf('.') + 1);
     }
 
     /**
@@ -34,7 +36,7 @@ public class HttpParser {
      * It will read the data until it reaches to the end of the request headers.
      * Data are put into a List called "requestDetails".
      *
-     * @return HttpRequest is an object containing all the information about the request.
+     * @return HttpRequest object which contains all the information about the request.
      * @throws IOException
      * @throws UnsupportedHTTPMethodException
      */
@@ -46,12 +48,12 @@ public class HttpParser {
             requestDetails.add(currentLine);
         }
 
-        if (requestDetails.size() <= 0) {
+        if (requestDetails.size() == 0) {
             // TODO Handle Bad Request here
             throw new RuntimeException();
         }
 
-        // Remove the RequestLine from the RequestDetails List
+        // Extract the RequestLine from the RequestDetails List and remove it
         String requestLine = requestDetails.get(0);
         requestDetails.remove(0);
 
@@ -68,19 +70,17 @@ public class HttpParser {
      * It can also separate the query string data in the HTTP request if it is included in the request.
      * Data are then bind into the request object.
      *
-     * @param requestLine
-     * @throws IOException
      * @throws UnsupportedHTTPMethodException
      */
-    private void parseRequestLine(String requestLine, HttpRequest request) throws IOException, UnsupportedHTTPMethodException {
-        String[] requestLineParts = requestLine.split(" ");
+    private void parseRequestLine(String requestLine, HttpRequest request) throws UnsupportedHTTPMethodException {
+        String[] requestLineParts = requestLine.split(SPACE);
         String method = requestLineParts[0];
         String path = requestLineParts[1];
         String httpVersion = requestLineParts[2];
 
         validateHttpMethod(method);
 
-        if (!path.contains(QM)) {
+        if (!path.contains(QUESTION_MARK)) {
             request.setPath(path);
             request.setMethod(method);
             request.setHttpVersion(httpVersion);
@@ -100,7 +100,7 @@ public class HttpParser {
      * @param request
      */
     private void parseQueryString(String resourcePath, HttpRequest request) {
-        String[] resourcePathParts = resourcePath.split(QM);
+        String[] resourcePathParts = resourcePath.split(QUESTION_MARK);
         String destinationPath = resourcePathParts[0];
         String queryString = resourcePathParts[1];
 
@@ -115,7 +115,8 @@ public class HttpParser {
      * @throws UnsupportedHTTPMethodException if the incoming request has invalid request or bad request method
      */
     private void validateHttpMethod(String method) throws UnsupportedHTTPMethodException {
-        if (!HTTP_METHODS.contains(method)) {
+        List<HttpMethod> methods = Arrays.stream(HttpMethod.values()).toList();
+        if (!methods.contains(HttpMethod.valueOf(method))) {
             throw new UnsupportedHTTPMethodException("HTTP method is not supported.");
         }
     }
@@ -127,14 +128,12 @@ public class HttpParser {
      * @param request
      */
     private void parseHeaders(List<String> requestHeaders, HttpRequest request) {
-        Map<String, String> headers = new HashMap<>();
         for (String header : requestHeaders) {
             String[] headerParts = header.split(":");
-            String type = headerParts[0];
-            String value = headerParts[1];
-            headers.put(type.trim(), value.trim());
+            String type = headerParts[0].trim();
+            String value = headerParts[1].trim();
+            request.setHeaders(type,value);
         }
-        request.setHeaders(headers);
     }
 
     public void parseBody(HttpRequest request) throws IOException {

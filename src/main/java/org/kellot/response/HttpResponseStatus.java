@@ -9,7 +9,7 @@ public enum HttpResponseStatus {
     METHOD_NOT_ALLOWED(405),
     NOT_IMPLEMENTED(501);
 
-    private int statusCode;
+    private final int statusCode;
 
     HttpResponseStatus(int statusCode) {
         this.statusCode = statusCode;

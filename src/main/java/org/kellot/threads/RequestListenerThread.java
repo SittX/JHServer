@@ -14,10 +14,9 @@ import java.util.logging.Logger;
 
 public class RequestListenerThread extends Thread {
     private final static Logger logger = Logger.getLogger(RequestListenerThread.class.getName());
-    private ServerSocket serverSocket;
-    private Socket clientSocket;
-    private int port;
-    private int connectionCounter;
+    private final ServerSocket serverSocket;
+    private final int port;
+    private int connectionCounter = 0;
 
     /**
      * @param port is the port number that the server has to listen for the incoming requests.
@@ -35,22 +34,23 @@ public class RequestListenerThread extends Thread {
      */
     @Override
     public void run() {
-        try {
-            logger.info("Server is listening on port -> " + port);
-            while (!serverSocket.isClosed()) {
-                // Listen to incoming TCP connection
+        logger.info("Server is listening on port -> " + port);
+
+        while (serverSocket.isBound() && !serverSocket.isClosed()) {
+
+            Socket clientSocket;
+            try {
                 clientSocket = serverSocket.accept();
-
-                logger.info("Total connection count -> " + ++connectionCounter);
-                logger.info("*** A new connection is established from -> " + clientSocket.getInetAddress());
-
-                // Start RequestWorkerThread to process the incoming request
-                RequestProcessingThread workerThread = new RequestProcessingThread(clientSocket);
-                workerThread.start();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
-        } catch (IOException e) {
-            // Exception happens when the server socket failed to establish TCP connection to the client.
-            throw new RuntimeException(e);
+
+            logger.info("Total connection count -> " + ++connectionCounter);
+            logger.info(clientSocket.getInetAddress() + " is connected to the server.");
+
+            // Start RequestProcessingThread to process the incoming request
+            RequestProcessingThread workerThread = new RequestProcessingThread(clientSocket);
+            workerThread.start();
         }
     }
 }

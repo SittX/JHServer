@@ -8,7 +8,6 @@ import java.io.FileReader;
 /*
     ConfigurationManager is a singleton class for loading, and managing configuration information for the HTTP server.
  */
-// TODO ServerConfigurationManager should use Factory pattern
 public class ServerConfigurationManager {
     private static ServerConfigurationManager configurationManager;
     private ServerConfiguration configuration;
@@ -23,11 +22,6 @@ public class ServerConfigurationManager {
         return configurationManager;
     }
 
-//    public ServerConfiguration getConfiguration(String configurationFilePath){
-//       ServerConfigurationManager serverConfigurationManager = ServerConfigurationManager.getInstance();
-//       serverConfigurationManager.initializeConfiguration(configurationFilePath);
-//    }
-
     public void initializeConfiguration(String filePath) {
         try {
             configuration = JsonParser.toObject(new FileReader(filePath), ServerConfiguration.class);
@@ -37,12 +31,9 @@ public class ServerConfigurationManager {
     }
 
     public ServerConfiguration getCurrentConfiguration() {
-        // TODO get the current Configuration object
-        // TODO throw exception if the configuration object has not been initialized
         if (configuration == null) {
             throw new RuntimeException("Error : Configuration object has not been initialized.");
         }
         return configuration;
-
     }
 }

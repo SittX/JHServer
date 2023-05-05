@@ -1,5 +1,6 @@
 package org.kellot.response;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpResponseBuilder {
@@ -40,6 +41,14 @@ public class HttpResponseBuilder {
 
     public HttpResponseBuilder setHeaders(Map<String, String> headers) {
         this.headers = headers;
+        return this;
+    }
+
+    public HttpResponseBuilder setHeader(String key,String value){
+        if(this.headers ==null){
+            this.headers = new HashMap<>();
+        }
+        this.headers.put(key,value);
         return this;
     }
 }

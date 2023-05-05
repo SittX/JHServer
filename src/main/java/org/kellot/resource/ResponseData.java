@@ -1,6 +1,6 @@
 package org.kellot.resource;
 
-public class ResourceData {
+public class ResponseData {
     private byte[] data;
     private boolean isValid;
 
@@ -15,9 +15,5 @@ public class ResourceData {
 
     public boolean isValid() {
         return isValid;
-    }
-
-    public void setValid(boolean valid) {
-        isValid = valid;
     }
 }

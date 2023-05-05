@@ -11,7 +11,7 @@ public class HttpDate {
      *
      * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
      */
-    public static String getCurrentHttpDate() {
+    public static String setCurrentDateTime() {
         DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC);
         return httpDateFormat.format(currentDateTime);
@@ -23,7 +23,7 @@ public class HttpDate {
      * @param durationHour
      * @return String of "Fri, 31 Dec 1999 23:59:59 GMT"
      */
-    public static String getExpiryDate(long durationHour) {
+    public static String setExpiryDateTime(long durationHour) {
         DateTimeFormatter httpDateFormat = DateTimeFormatter.RFC_1123_DATE_TIME;
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneOffset.UTC).plusHours(durationHour);
         return httpDateFormat.format(currentDateTime);

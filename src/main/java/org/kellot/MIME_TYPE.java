@@ -9,11 +9,11 @@ public enum MIME_TYPE {
     ICO("image/x-icon");
     private final String contentTypeString;
 
-    public String getContentTypeString() {
-        return contentTypeString;
-    }
-
     MIME_TYPE(String contentType) {
         this.contentTypeString = contentType;
+    }
+
+    public String getContentTypeString() {
+        return contentTypeString;
     }
 }
