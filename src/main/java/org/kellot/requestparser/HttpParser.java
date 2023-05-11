@@ -1,8 +1,12 @@
-package org.kellot.util;
+package org.kellot.requestparser;
 
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
+import org.kellot.requestparser.BodyParsingStrategy.BodyParsingContext;
+import org.kellot.requestparser.BodyParsingStrategy.BodyParsingStrategy;
+import org.kellot.requestparser.BodyParsingStrategy.FormDataBodyParsingStrategy;
+import org.kellot.requestparser.BodyParsingStrategy.FormUrlEncodedBodyParsingStrategy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,11 +24,14 @@ public class HttpParser {
     private static final String CR = "\r"; // Carriage return
     private static final String LF = "\n"; // Line feed
     private static final String QUESTION_MARK = "\\?"; // question mark
-    //    private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
     private final BufferedReader input;
+    private final HttpRequest request;
+
+//    private final List<String> HTTP_METHODS = List.of("GET", "HEAD");
 
     public HttpParser(InputStream input) {
         this.input = new BufferedReader(new InputStreamReader(input));
+        this.request = new HttpRequest();
     }
 
     public static String getFileExtension(String path) {
@@ -41,7 +48,6 @@ public class HttpParser {
      * @throws UnsupportedHTTPMethodException
      */
     public HttpRequest parse() throws IOException, UnsupportedHTTPMethodException {
-        HttpRequest request = new HttpRequest();
         List<String> requestDetails = new ArrayList<>();
         String currentLine;
         while (!(currentLine = input.readLine()).equals("")) {
@@ -59,8 +65,7 @@ public class HttpParser {
 
         parseRequestLine(requestLine, request);
         parseHeaders(requestDetails, request);
-        // TODO Handle Request body parsing
-//        parseBody();
+        parseBody(request);
 
         return request;
     }
@@ -123,7 +128,6 @@ public class HttpParser {
 
     /**
      * Parse data into Map<String,String> structure and save to the request object.
-     *
      * @param requestHeaders is a list of string that contains headers data.
      * @param request
      */
@@ -132,49 +136,28 @@ public class HttpParser {
             String[] headerParts = header.split(":");
             String type = headerParts[0].trim();
             String value = headerParts[1].trim();
-            request.setHeaders(type,value);
+            request.setHeaders(type, value);
         }
     }
 
+
+    // TODO Add the parsing result to the Request object
     public void parseBody(HttpRequest request) throws IOException {
-// Check if the request has body or not
-        String contentType = request.getHeaders().get("Content-Type").trim();
-        int contentLength = Integer.parseInt(request.getHeaders().get("Content-Length"));
-
-        System.out.println(contentType.equals("application/x-www-form-urlencoded"));
-        if (contentType.equals("application/x-www-form-urlencoded")) {
-            System.out.println("Request is form-urlencoded");
-
-            char[] buffer = new char[contentLength];
-            input.read(buffer, 0, contentLength - 1);
-            String body = new String(buffer);
-
-            String[] bodyParts = body.toString().split("&");
-            for (String part : bodyParts) {
-                String[] data = part.split("=");
-            }
-
-        } else if (contentType.equals("multipart/form-data")) {
-            System.out.println("Request is form-urlencoded");
-            String BOUNDARY_PREFIX = "--";
-            String boundary = contentType.split("=")[1];
-            String bodyEnding = BOUNDARY_PREFIX + boundary + BOUNDARY_PREFIX;
-
-            String currentFieldName = "";
-            String current;
-            while (!(current = input.readLine()).equals(bodyEnding)) {
-                if (current.equals(BOUNDARY_PREFIX + boundary) || current.isEmpty()) {
-                    continue;
-                } else if (current.contains("Content-Disposition")) {
-                    currentFieldName = current.split("=")[1].replace("\"", "");
-                } else {
-                    if (current.contains(BOUNDARY_PREFIX)) continue;
-                    String value = current.trim();
-//                            dataMap.put(currentFieldName, value);
-                }
-            }
+        String contentType = request.getHeader("Content-Type");
+        if (contentType.contains("application/x-www-form-urlencoded")) {
+//            System.out.println("Request is form-urlencoded");
+           var result = getBodyData(new FormUrlEncodedBodyParsingStrategy());
+            System.out.println(result);
+        } else if (contentType.contains("multipart/form-data")) {
+//            System.out.println("Request is form-urlencoded");
+            var result = getBodyData(new FormDataBodyParsingStrategy());
+            System.out.println(result);
         }
     }
 
+    private Map<String,String> getBodyData(BodyParsingStrategy strategy) throws IOException {
+        BodyParsingContext bodyParsingContext = new BodyParsingContext(strategy);
+        return bodyParsingContext.execute(request,input);
+    }
 
 }

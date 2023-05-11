@@ -2,6 +2,7 @@ package org.kellot.request;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class HttpRequest {
@@ -53,6 +54,10 @@ public class HttpRequest {
 
     public void setHeaders(String key,String value){
         this.headers.put(key,value);
+    }
+
+    public String getHeader(String key){
+        return headers.get(key);
     }
 
     @Override
