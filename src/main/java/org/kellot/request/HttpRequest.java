@@ -8,12 +8,13 @@ import java.util.Objects;
 public class HttpRequest {
     private String method;
     private String path;
+    private Map<String,String> queryString;
     private String httpVersion;
-    private String queryString;
     private final Map<String, String> headers;
 
     public HttpRequest() {
         this.headers = new HashMap<>();
+        this.queryString = new HashMap<>();
     }
 
     public String getMethod() {
@@ -40,12 +41,12 @@ public class HttpRequest {
         this.httpVersion = httpVersion;
     }
 
-    public String getQueryString() {
-        return queryString;
+    public Map<String,String> getQueryString() {
+        return this.queryString;
     }
 
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
+    public void setQueryString(String key,String value) {
+        this.queryString.put(key,value);
     }
 
     public Map<String, String> getHeaders() {

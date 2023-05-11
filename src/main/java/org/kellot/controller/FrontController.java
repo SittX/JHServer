@@ -53,7 +53,7 @@ public class FrontController {
 
     private boolean validateQueryStringLength(HttpRequest request) {
         if (request.getQueryString() != null) {
-            return request.getQueryString().length() <= conf.queryStringLength();
+            return request.getQueryString().size() <= conf.queryStringLength();
         }
         return true;
     }
