@@ -2,7 +2,6 @@ package org.kellot.request;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class HttpRequest {

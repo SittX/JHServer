@@ -1,18 +1,17 @@
-package org.kellot.requestparser;
+package org.kellot.request_parser;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpRequest;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HttpParserTest {
     @Test

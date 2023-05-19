@@ -1,12 +1,12 @@
-package org.kellot.requestparser;
+package org.kellot.request_parser;
 
 import org.kellot.exception.UnsupportedHTTPMethodException;
 import org.kellot.request.HttpMethod;
 import org.kellot.request.HttpRequest;
-import org.kellot.requestparser.BodyParsingStrategy.BodyParsingContext;
-import org.kellot.requestparser.BodyParsingStrategy.BodyParsingStrategy;
-import org.kellot.requestparser.BodyParsingStrategy.FormDataBodyParsingStrategy;
-import org.kellot.requestparser.BodyParsingStrategy.FormUrlEncodedBodyParsingStrategy;
+import org.kellot.request_parser.BodyParsingStrategy.BodyParsingContext;
+import org.kellot.request_parser.BodyParsingStrategy.BodyParsingStrategy;
+import org.kellot.request_parser.BodyParsingStrategy.FormDataBodyParsingStrategy;
+import org.kellot.request_parser.BodyParsingStrategy.FormUrlEncodedBodyParsingStrategy;
 
 import java.io.BufferedReader;
 import java.io.IOException;

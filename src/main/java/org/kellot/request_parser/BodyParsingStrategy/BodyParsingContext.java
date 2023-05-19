@@ -1,4 +1,4 @@
-package org.kellot.requestparser.BodyParsingStrategy;
+package org.kellot.request_parser.BodyParsingStrategy;
 
 import org.kellot.request.HttpRequest;
 

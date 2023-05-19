@@ -1,5 +1,6 @@
 package org.kellot.response;
 
+import java.awt.image.BufferedImage;
 import java.util.Map;
 
 public class HttpResponse {
@@ -8,6 +9,19 @@ public class HttpResponse {
     private final int statusCode;
     private final String body;
     private final Map<String, String> headers;
+
+    // Warning !!!!!
+    // This is temporary solution. I'll find a better way to do this later.
+    private BufferedImage bufferedImage;
+
+    public BufferedImage getBufferedImage() {
+        return bufferedImage;
+    }
+
+    public void setBufferedImage(BufferedImage bufferedImage) {
+        this.bufferedImage = bufferedImage;
+    }
+    // Warning section ends here !
 
     HttpResponse(HttpResponseBuilder builder) {
         this.status = builder.getStatus();
